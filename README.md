@@ -28,3 +28,5 @@ This project predicts future gold prices based on historical data from Quandl, s
 
 ## 6: Comparions of Models
 - 6.1 Comparison of ARIMA VS SARIMA Model Results
+
+## 7: Dashboard Insights for Predicting Gold Prices w/ Time Series Forecasting
