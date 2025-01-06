@@ -83,5 +83,8 @@ This project predicts future gold prices based on historical data from Quandl, s
 
 ## 7: Dashboard Insights for Predicting Gold Prices w/ Time Series Forecasting
 
+- The dashboard provides an interactive and comprehensive view of historical and forecasted gold prices, enabling users to explore trends and patterns over time. It is designed to present key insights from the data analysis and forecasting process, making it easy to compare historical data with future projections.
+- Model Comparison and Final Recommendation: SARIMA model was chosen for the dashboard for its efficiency and accuracy in capturing gold price trends and making reliable forecasts (Refer to #6).
+
 ![Dashboard - Gold Price Forecast and Historical Analysis](https://github.com/user-attachments/assets/5c5cfcd4-7b49-43ac-9f18-d62e5d09573c)
 
