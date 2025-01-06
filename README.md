@@ -1,5 +1,7 @@
 # Predicting-Gold-Prices-w-Time-Series-Forecasting
-This project predicts future gold prices based on historical data from Quandl, spanning from 1970 to 2020. By applying time series forecasting techniques, such as ARIMA and SARIMA, it aims to forecast gold prices for the years 2020-2022. The project utilizes univariate time series data with date and time features.
+This project predicts future gold prices based on historical data from Quandl, spanning from 1970 to 2020. By applying time series forecasting techniques, such as ARIMA and SARIMA, I aimed to forecast gold prices for the years 2020-2022. The project utilizes univariate time series data with date and time features.
+
+---
 
 ## 1: Data Import and Initial Exploration
 - 1.1 Data Import
@@ -80,3 +82,6 @@ This project predicts future gold prices based on historical data from Quandl, s
     - Model for Dashboard Development Insights: SARIMA(0,1,3) with drift is recommended because it provides a slightly better fit (lower AIC and BIC) while maintaining comparable error measures. The improved efficiency and negligible residual patterns make it more suitable for generating accurate forecasts and actionable insights for dashboard development.
 
 ## 7: Dashboard Insights for Predicting Gold Prices w/ Time Series Forecasting
+
+![Dashboard - Gold Price Forecast and Historical Analysis](https://github.com/user-attachments/assets/5c5cfcd4-7b49-43ac-9f18-d62e5d09573c)
+
