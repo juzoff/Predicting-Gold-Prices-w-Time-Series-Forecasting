@@ -46,13 +46,15 @@ This project predicts future gold prices based on historical data from Quandl, s
 - 4.1 Fitting an ARIMA Model & Forecasting Future Values
 - 4.2 Visualization of Forecast Results
 
-[gold_price_forecast.pdf](https://github.com/user-attachments/files/18323738/gold_price_forecast.pdf)
+![a](https://github.com/user-attachments/assets/3e57af13-1820-42ea-870e-f3113301f819)
+
 
 
 ## 5: SARIMA Model Forecasting
 - 5.1 Fitting a SARIMA Model, & Forecasting Future Values, & Visualization of Forecast Results
 
-[sarima_forecast.pdf](https://github.com/user-attachments/files/18323740/sarima_forecast.pdf)
+![aa](https://github.com/user-attachments/assets/0cf41ec4-bc84-4a10-b5c1-f50b3917b46c)
+
 
 - 5.2 Preparing the Forecast Data Frame
 
