@@ -59,5 +59,23 @@ This project predicts future gold prices based on historical data from Quandl, s
 
 ## 6: Comparions of Models
 - 6.1 Comparison of ARIMA VS SARIMA Model Results
+  - ARIMA(3,1,0) with drift:
+    - AIC: 120096.4, BIC: 120135.5
+    - Log-likelihood: -60043.19
+    - Training set error measures:
+      - RMSE: 6.3981, MAE: 2.9672, MAPE: 0.4663
+    - Residual autocorrelation (ACF1): 0.0002
+    - Observations: This model has slightly higher AIC and BIC, indicating a less efficient fit compared to SARIMA. The residual autocorrelation is close to zero, suggesting no significant patterns left unmodeled.
+
+  - SARIMA(0,1,3) with drift:
+    - AIC: 120095.1, BIC: 120134.2
+    - Log-likelihood: -60042.56
+    - Training set error measures:
+      - RMSE: 6.3979, MAE: 2.9679, MAPE: 0.4664
+    - Residual autocorrelation (ACF1): -0.0001
+    - Observations: This model achieves marginally lower AIC and BIC values, suggesting a better trade-off between model complexity and fit. The error measures are almost identical to ARIMA, and the residual autocorrelation is close to zero, further affirming the model's adequacy.
+
+  - Final Recommendation:
+    - Model for Dashboard Development Insights: SARIMA(0,1,3) with drift is recommended because it provides a slightly better fit (lower AIC and BIC) while maintaining comparable error measures. The improved efficiency and negligible residual patterns make it more suitable for generating accurate forecasts and actionable insights for dashboard development.
 
 ## 7: Dashboard Insights for Predicting Gold Prices w/ Time Series Forecasting
