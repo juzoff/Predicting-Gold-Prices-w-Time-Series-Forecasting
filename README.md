@@ -26,6 +26,8 @@ This project predicts future gold prices based on historical data from Quandl, s
 ![3](https://github.com/user-attachments/assets/897b8ce4-d05b-4344-9e8f-66e14bdf7aa4)
 
 - 2.4 Resampling Data to a Uniform Frequency
+  - Filling in missing dates in the data to ensure there's a date for every single day between the earliest and latest dates
+  - Interpolating missing values for the Value column, so there are no gaps in the data, and each day has a corresponding value (even if it was missing initially)
 - 2.5 Verification of Complete Daily Sequence
 
 ![4](https://github.com/user-attachments/assets/4d76948c-519c-4cfa-8055-8a9383af4712)
