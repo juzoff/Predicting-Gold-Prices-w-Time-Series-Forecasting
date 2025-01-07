@@ -1,0 +1,294 @@
+---
+title: "Time Series Forecasting"
+output: html_document
+date: "2025-01-02"
+---
+
+#Section 1: Data Import and Initial Exploration
+
+# 1.1 Data Import
+```{r}
+tsf <- read.csv("C:/Users/jivko/Documents/Data Analytics, Big Data, and Predictive Analytics/Personal Project/Time Series Forecasting - Gold/gold_price_data.csv")
+
+# Print the first few rows
+head(tsf, 40)
+```
+
+# 1.2 Convert the Timestamp Column to Date Format
+```{r}
+# Convert the Timestamp column to Date format
+tsf$Date <- as.Date(tsf$Date)
+```
+
+
+# 1.3 Data Structure Overview
+```{r}
+str(tsf)
+```
+
+# 1.4 Plotting the Time Series
+```{r}
+# Plot the gold price over time
+plot(tsf$Date, tsf$Value, type="l", xlab="Date", ylab="Gold Price", main="Gold Price Time Series")
+```
+
+#Section 2: Handling Date Differences and Uniform Resampling
+
+# 2.1 Calculating Differences Between Consecutive Dates
+```{r}
+# Calculate differences between consecutive dates
+date_diff <- diff(tsf$Date)
+
+# Summary of differences
+summary(date_diff)
+```
+# 2.2 Unique Time Differences Count
+```{r}
+# View unique time differences and their counts
+table(date_diff)
+```
+# 2.3 Visualizing Time Differences
+```{r}
+# Plot histogram of time differences
+hist(as.numeric(date_diff), main="Distribution of Time Differences", xlab="Time Differences")
+```
+# 2.4 Resampling Data to a Uniform Frequency
+```{r}
+# Load required library
+library(zoo)
+
+# Create a complete sequence of dates
+full_dates <- seq(min(tsf$Date), max(tsf$Date), by="day")
+
+# Merge with your dataset, filling missing dates with NA
+tsf_complete <- merge(data.frame(Date=full_dates), tsf, by="Date", all.x=TRUE)
+
+# Interpolate missing values
+tsf_complete$Value <- na.approx(tsf_complete$Value, na.rm=FALSE)
+```
+
+```{r}
+# Optionally, if you want to save the table as a CSV file
+write.csv(tsf_complete, "tsf_complete.csv", row.names = FALSE)
+```
+
+
+# 2.5 Verification of Complete Daily Sequence
+```{r}
+# Recalculate differences and check if all are 1 day
+all(diff(tsf_complete$Date) == 1)  # Should return TRUE
+```
+```{r}
+# Calculate differences between consecutive dates
+date_diff2 <- diff(tsf_complete$Date)
+
+# Summary of differences
+summary(date_diff2)
+```
+```{r}
+# View unique time differences and their counts
+table(date_diff2)
+```
+#Section 3: Interpretation of ADF Test Results
+
+# 3.1 ADF Test for the Original Series
+```{r}
+# Install and load the tseries package (if not already installed)
+if (!require(tseries)) install.packages("tseries")
+library(tseries)
+
+# Perform the ADF Test
+adf_test <- adf.test(tsf_complete$Value, alternative = "stationary")
+
+# Display results
+print(adf_test)
+```
+# 3.2 ADF Test for the Differenced Series
+```{r}
+# Apply first-order differencing
+tsf_diff <- diff(tsf_complete$Value)
+
+# Perform ADF test again
+adf_diff_test <- adf.test(tsf_diff, alternative = "stationary")
+print(adf_diff_test)
+```
+
+#Section 4: ARIMA Model Fitting and Forecasting
+
+# 4.1 Fitting an ARIMA Model & Forecasting Future Values
+```{r}
+# Load necessary libraries
+library(forecast)
+library(tibble)
+
+# Convert the data to a time series object (daily frequency)
+ts_data <- ts(tsf_complete$Value, frequency = 365)
+
+# Fit an ARIMA model
+model <- auto.arima(ts_data)
+summary(model)  # Display model summary
+
+# Forecast the next 730 days (2 years)
+forecasted_values <- forecast(model, h = 730)
+
+# Generate a date sequence for the forecast period (next 2 years)
+forecast_dates <- seq(from = max(tsf_complete$Date) + 1, by = "day", length.out = 730)
+
+# Create a combined data frame with forecasted data
+forecast_data <- data.frame(
+  Date = forecast_dates,
+  Forecast = round(forecasted_values$mean, 2),
+  Lower_80 = round(forecasted_values$lower[,2], 2),
+  Upper_80 = round(forecasted_values$upper[,2], 2),
+  Lower_95 = round(forecasted_values$lower[,1], 2),
+  Upper_95 = round(forecasted_values$upper[,1], 2)
+)
+
+# View forecast table
+print(forecast_data)
+
+# Optionally, if you want to save the table as a CSV file
+write.csv(forecast_data, "forecast_table.csv", row.names = FALSE)
+```
+
+# 4.2 Visualization of Forecast Results
+```{r}
+# Load necessary libraries
+library(forecast)
+library(ggplot2)
+library(dplyr)
+
+# Convert the data to a time series object (daily frequency)
+ts_data <- ts(tsf_complete$Value, frequency = 365)
+
+# Fit an ARIMA model
+model <- auto.arima(ts_data)
+summary(model)  # Display model summary
+
+# Forecast the next 730 days (2 years)
+forecasted_values <- forecast(model, h = 730)
+
+# Create a data frame for the original data
+tsf_complete <- tsf_complete %>%
+  mutate(Date = as.Date(Date))
+
+# Generate a sequence of forecast dates for the next 2 years
+forecast_dates <- seq(from = max(tsf_complete$Date) + 1, by = "day", length.out = 730)
+
+# Prepare a data frame for forecasted data
+forecast_df <- data.frame(
+  Date = forecast_dates,
+  Mean = forecasted_values$mean,
+  Lower80 = forecasted_values$lower[, 1],
+  Upper80 = forecasted_values$upper[, 1],
+  Lower95 = forecasted_values$lower[, 2],
+  Upper95 = forecasted_values$upper[, 2]
+)
+
+# Create ggplot
+p <- ggplot() +
+  geom_line(data = tsf_complete, aes(x = Date, y = Value, color = "Original Data"), size = 1, linetype = "solid") +  # Original data
+  geom_line(data = forecast_df, aes(x = Date, y = Mean, color = "Forecast Mean"), size = 1.2) +  # Forecast mean
+  geom_ribbon(data = forecast_df, aes(x = Date, ymin = Lower80, ymax = Upper80, fill = "80% CI"), alpha = 0.2) +  # 80% CI
+  geom_ribbon(data = forecast_df, aes(x = Date, ymin = Lower95, ymax = Upper95, fill = "95% CI"), alpha = 0.1) +  # 95% CI
+  labs(title = "Gold Price Time Series and Forecast - ARIMA Model",
+       x = "Date",
+       y = "Gold Price") +
+  scale_x_date(date_labels = "%Y-%m-%d", date_breaks = "1 year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(name = "Legend", values = c("Original Data" = "black", "Forecast Mean" = "blue")) +
+  scale_fill_manual(name = "Confidence Intervals", values = c("80% CI" = "blue", "95% CI" = "green")) +
+  guides(color = guide_legend(title = "Legend"), fill = guide_legend(title = "Confidence Intervals"))
+
+# Print the plot
+print(p)
+
+# Save the plot with increased width
+ggsave("gold_price_forecast.pdf", plot = p, width = 12, height = 6)  # Save as PDF
+```
+
+```{r}
+getwd()
+```
+
+#Section 5: SARIMA Model Forecasting
+
+# 5.1 Fitting a SARIMA Model, & Forecasting Future Values, & Visualization of Forecast Results
+```{r}
+# Load necessary libraries
+library(forecast)
+library(ggplot2)
+library(dplyr)
+
+# Convert the data to a time series object (daily frequency)
+ts_data <- ts(tsf_complete$Value, frequency = 365)
+
+# Fit a SARIMA model (with seasonal component)
+sarima_model <- auto.arima(ts_data, 
+                           seasonal = TRUE,  # Set seasonal to TRUE
+                           stepwise = FALSE, 
+                           approximation = FALSE)
+
+# Display the summary of the SARIMA model
+summary(sarima_model)
+
+# Forecast the next 730 days (2 years)
+forecasted_values_sarima <- forecast(sarima_model, h = 730)
+
+# Generate a sequence of forecast dates for the next 2 years
+forecast_dates <- seq(from = max(tsf_complete$Date) + 1, by = "day", length.out = 730)
+
+# Prepare a data frame for the forecasted data
+forecast_df_sarima <- data.frame(
+  Date = forecast_dates,
+  Mean = forecasted_values_sarima$mean,
+  Lower80 = forecasted_values_sarima$lower[, 1],
+  Upper80 = forecasted_values_sarima$upper[, 1],
+  Lower95 = forecasted_values_sarima$lower[, 2],
+  Upper95 = forecasted_values_sarima$upper[, 2]
+)
+
+# Create ggplot for the SARIMA forecast
+p_sarima <- ggplot() +
+  geom_line(data = tsf_complete, aes(x = Date, y = Value, color = "Original Data"), size = 1, linetype = "solid") +  # Original data
+  geom_line(data = forecast_df_sarima, aes(x = Date, y = Mean, color = "Forecast Mean"), size = 1.2) +  # Forecast mean
+  geom_ribbon(data = forecast_df_sarima, aes(x = Date, ymin = Lower80, ymax = Upper80, fill = "80% CI"), alpha = 0.2) +  # 80% CI
+  geom_ribbon(data = forecast_df_sarima, aes(x = Date, ymin = Lower95, ymax = Upper95, fill = "95% CI"), alpha = 0.1) +  # 95% CI
+  labs(title = "Gold Price Time Series and Forecast - SARIMA Model",
+       x = "Date",
+       y = "Gold Price") +
+  scale_x_date(date_labels = "%Y-%m-%d", date_breaks = "1 year") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  scale_color_manual(name = "Legend", values = c("Original Data" = "black", "Forecast Mean" = "blue")) +
+  scale_fill_manual(name = "Confidence Intervals", values = c("80% CI" = "blue", "95% CI" = "green")) +
+  guides(color = guide_legend(title = "Legend"), fill = guide_legend(title = "Confidence Intervals"))
+
+# Print the SARIMA forecast plot
+print(p_sarima)
+
+# Optionally, save the plot as a PDF
+ggsave("sarima_forecast.pdf", plot = p_sarima, width = 12, height = 6)  # Save as PDF
+
+# Optionally, save the forecast data to CSV
+write.csv(forecast_df_sarima, "sarima_forecast_table.csv", row.names = FALSE)
+```
+
+# 5.2 Preparing the Forecast Data Frame
+```{r}
+# Display the forecast table in the console
+print(forecast_df_sarima)
+```
+
+
+
+
+
+
+
+
+
+
+
+
